@@ -99,6 +99,11 @@ Once the setup is done, follow these steps to run the analytics:
     python3 producer.py
     ```
 2.  **Submit Spark Job**:
+    **Windows:**
+    ```powershell
+    ./submit_processor.bat
+    ```
+    **Linux:**
     ```bash
     ./submit_processor.sh
     ```
@@ -115,7 +120,7 @@ Once the setup is done, follow these steps to run the analytics:
 ├── docker-compose.yml      # Infrastructure (Kafka, Spark, Postgres, Grafana)
 ├── producer.py             # Kafka data producer (Market Simulator)
 ├── processor.py            # PySpark streaming logic
-├── submit_processor.sh     # Script to run Spark job in Docker
+├── submit_processor.sh / .bat # Script to run Spark job in Docker
 ├── setup_db.py             # Database initialization (with retry logic)
 ├── requirements.txt        # Python dependencies
 ├── start.sh / .bat         # System startup scripts
