@@ -2,14 +2,18 @@
 
 echo "Starting Real-Time Analytics System on Linux..."
 
-# Start Docker Containers
-docker-compose up -d
+# Start Docker Containers (Try 'docker compose' then fallback to 'docker-compose')
+if docker compose version > /dev/null 2>&1; then
+    docker compose up -d
+else
+    docker-compose up -d
+fi
 
 echo "Waiting for services to start..."
 sleep 15
 
-# Install Python Dependencies
-pip install -r requirements.txt
+# Install Python Dependencies (Use python3 -m pip for better compatibility)
+python3 -m pip install -r requirements.txt
 
 # Setup Database
 python3 setup_db.py
