@@ -2,11 +2,16 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, avg, window, min, max
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
 
+import os
+
 # Initialize Spark Session
 spark = SparkSession.builder \
     .appName("SriLankanMarketAnalytics") \
     .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
     .getOrCreate()
+
+KAFKA_HOST = os.getenv("KAFKA_HOST", "localhost")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 
 # Schema for the incoming JSON data
 schema = StructType([
@@ -21,7 +26,7 @@ schema = StructType([
 # Read from Kafka
 df = spark.readStream \
     .format("kafka") \
-    .option("kafka.bootstrap.servers", "localhost:29092") \
+    .option("kafka.bootstrap.servers", f"{KAFKA_HOST}:29092" if KAFKA_HOST == "localhost" else f"{KAFKA_HOST}:9092") \
     .option("subscribe", "market-prices") \
     .option("startingOffsets", "latest") \
     .load()
@@ -56,7 +61,7 @@ aggregated_df = parsed_df \
 def write_to_postgres(batch_df, batch_id):
     batch_df.write \
         .format("jdbc") \
-        .option("url", "jdbc:postgresql://localhost:5432/analytics_db") \
+        .option("url", f"jdbc:postgresql://{POSTGRES_HOST}:5432/analytics_db") \
         .option("dbtable", "processed_market_data") \
         .option("user", "admin") \
         .option("password", "adminpassword") \

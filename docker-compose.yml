@@ -54,6 +54,30 @@ services:
     networks:
       - analytics-net
 
+  spark-master:
+    image: bitnami/spark:3.5.0
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+    volumes:
+      - .:/opt/bitnami/spark/app
+    networks:
+      - analytics-net
+
+  spark-worker:
+    image: bitnami/spark:3.5.0
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - .:/opt/bitnami/spark/app
+    depends_on:
+      - spark-master
+    networks:
+      - analytics-net
+
 networks:
   analytics-net:
     driver: bridge
