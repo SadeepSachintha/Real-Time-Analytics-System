@@ -1,6 +1,6 @@
 # 📊 Real-Time Analytics System for Sri Lankan Market Data
 
-A high-performance, scalable streaming data pipeline designed to process and visualize Sri Lankan market prices in real-time using **Apache Kafka**, **PySpark**, and **Grafana**.
+A high-performance, scalable streaming data pipeline designed to process and visualize Sri Lankan market prices in real-time using **Apache Kafka**, **Apache Spark**, and **Grafana**.
 
 ![Architecture](https://img.shields.io/badge/Architecture-Streaming-blue)
 ![Tech](https://img.shields.io/badge/Tech-Kafka%20|%20Spark%20|%20Postgres-green)
@@ -10,38 +10,38 @@ A high-performance, scalable streaming data pipeline designed to process and vis
 
 ## 🏗️ System Architecture
 
-The system follows a classic Lambda/Streaming architecture:
+The system follows a classic Lambda/Streaming architecture, entirely containerized:
 
 ```mermaid
 graph LR
     A[Producer: Manning Market Sim] -->|JSON Stream| B(Apache Kafka)
-    B -->|Subscribe| C[PySpark Processor]
+    B -->|Subscribe| C[Spark Master/Worker]
     C -->|30s Window Aggregation| D[(PostgreSQL)]
     D -->|Query| E[Grafana Dashboard]
 ```
 
-1.  **Data Source**: A Python producer simulating live price fluctuations at Colombo's Manning Market.
-2.  **Ingestion Layer**: Apache Kafka (Bitnami) acts as the high-throughput message broker.
-3.  **Processing Layer**: PySpark Structured Streaming performs windowed aggregations (Avg, Min, Max) every 30 seconds.
-4.  **Storage Layer**: PostgreSQL stores the processed analytics for historical tracking.
-5.  **Visualization Layer**: Grafana provides real-time dashboards with automated data source provisioning.
+1.  **Data Source**: Python producer simulating live price fluctuations at Colombo's Manning Market.
+2.  **Ingestion Layer**: Confluent Kafka handles the high-throughput message stream.
+3.  **Processing Layer**: Spark Structured Streaming (running in Docker) performs windowed aggregations.
+4.  **Storage Layer**: PostgreSQL stores the processed analytics.
+5.  **Visualization Layer**: Grafana provides real-time dashboards with pre-configured data sources.
 
 ---
 
 ## 🚀 Key Features
 
-- **Real-Time Streaming**: End-to-end latency of seconds from market change to dashboard update.
-- **Windowed Analytics**: Intelligent 30-second sliding windows to smooth out price volatility.
-- **Sri Lankan Context**: Focused on local data (Vegetable prices, Manning Market regions).
-- **Dockerized Infrastructure**: One-command setup for the entire stack.
-- **Automated Provisioning**: Grafana comes pre-configured with the PostgreSQL data source.
+- **Fully Dockerized**: No need to install Spark or Kafka on your host machine.
+- **Real-Time Streaming**: End-to-end latency of seconds.
+- **Robust Processing**: Intelligent 30-second sliding windows.
+- **Cross-Platform**: Optimized for both **Windows** and **Ubuntu**.
+- **Auto-Provisioned**: Grafana comes pre-linked to the PostgreSQL database.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Broker**: Apache Kafka & Zookeeper
-- **Engine**: PySpark (Spark Structured Streaming)
+- **Broker**: Confluent Kafka & Zookeeper
+- **Engine**: Apache Spark 3.5.0 (Master/Worker containers)
 - **Database**: PostgreSQL
 - **Viz**: Grafana
 - **Language**: Python 3.x
@@ -49,17 +49,10 @@ graph LR
 
 ---
 
-## 📋 Prerequisites
-
-- **RAM**: 16GB (Recommended for Windows) or 8GB (Linux).
-- **Storage**: ~150GB available for Docker volumes and data.
-- **Tools**: Docker Desktop, Python 3.10+, Java (for Spark).
-
----
-
 ## 🚦 Getting Started
 
 ### 1. Initialize Infrastructure
+Pull the images and start the containers:
 
 **Windows:**
 ```powershell
@@ -68,42 +61,32 @@ graph LR
 
 **Ubuntu/Linux:**
 ```bash
-chmod +x start.sh stop.sh
+chmod +x start.sh stop.sh submit_processor.sh
 ./start.sh
 ```
 
-### 2. Setup Database Schema
+### 2. One-Time Setup
+Initialize the database schema:
 ```bash
-python setup_db.py
-```
-
-### 3. Start the Data Feed
-Open a terminal and start the market price simulator:
-```bash
-python producer.py
-```
-
-### 4. Start the Analytics Processor
-In a separate terminal, submit the Spark job:
-```bash
-spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.2 processor.py
+python3 setup_db.py
 ```
 
 ---
 
-## 📊 Visualization
+## 🔄 Daily Workflow
 
-- **URL**: `http://localhost:3000`
-- **Credentials**: `admin` / `admin`
-- **Dashboard**: Create a new dashboard and use the following SQL:
-  ```sql
-  SELECT 
-    last_updated, 
-    item_name, 
-    avg_price 
-  FROM processed_market_data 
-  ORDER BY last_updated DESC;
-  ```
+Once the setup is done, follow these steps to run the analytics:
+
+1.  **Start Data Feed**:
+    ```bash
+    python3 producer.py
+    ```
+2.  **Submit Spark Job**:
+    ```bash
+    ./submit_processor.sh
+    ```
+3.  **View Dashboard**:
+    Open `http://localhost:3000` (admin/admin).
 
 ---
 
@@ -112,12 +95,14 @@ spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.pos
 ```text
 .
 ├── grafana/                # Grafana provisioning configs
-├── docker-compose.yml      # Infrastructure orchestration
-├── producer.py             # Kafka data producer
+├── docker-compose.yml      # Infrastructure (Kafka, Spark, Postgres, Grafana)
+├── producer.py             # Kafka data producer (Market Simulator)
 ├── processor.py            # PySpark streaming logic
-├── setup_db.py             # Database initialization
+├── submit_processor.sh     # Script to run Spark job in Docker
+├── setup_db.py             # Database initialization (with retry logic)
 ├── requirements.txt        # Python dependencies
-└── start.bat               # Windows helper script
+├── start.sh / .bat         # System startup scripts
+└── stop.sh / .bat          # System shutdown scripts
 ```
 
 ---
