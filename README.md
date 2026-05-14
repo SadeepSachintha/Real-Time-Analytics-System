@@ -52,16 +52,16 @@ graph LR
 ## 🚦 Getting Started
 
 ### 1. Initialize Infrastructure
-Pull the images and start the containers:
+Ensure Docker is running, then pull the images and start the containers:
 
-**Windows:**
+**Windows (PowerShell):**
 ```powershell
 ./start.bat
 ```
 
-**Ubuntu/Linux:**
+**Ubuntu/Linux (Bash):**
 ```bash
-chmod +x start.sh stop.sh submit_processor.sh
+chmod +x *.sh
 ./start.sh
 ```
 
@@ -69,6 +69,23 @@ chmod +x start.sh stop.sh submit_processor.sh
 Initialize the database schema:
 ```bash
 python3 setup_db.py
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Spark Image "Not Found"
+If you encounter an error pulling `bitnami/spark:3.5`, ensure your `docker-compose.yml` uses the `bitnamilegacy` repository as shown:
+```yaml
+image: bitnamilegacy/spark:3.5
+```
+*Note: Bitnami migrated community images to the legacy repository in late 2025.*
+
+### Permission Denied (Linux)
+If scripts fail to run, re-apply execute permissions:
+```bash
+chmod +x start.sh stop.sh submit_processor.sh
 ```
 
 ---
