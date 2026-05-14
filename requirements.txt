@@ -1,0 +1,6 @@
+confluent-kafka
+pyspark==3.5.0
+psycopg2-binary
+pandas
+numpy
+python-dotenv
