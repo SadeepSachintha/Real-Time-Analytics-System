@@ -59,9 +59,11 @@ aggregated_df = parsed_df \
 
 # Function to write to PostgreSQL
 def write_to_postgres(batch_df, batch_id):
+    # If host is localhost, use port 5433 (mapped host port), otherwise use 5432 (container port)
+    port = "5433" if POSTGRES_HOST == "localhost" else "5432"
     batch_df.write \
         .format("jdbc") \
-        .option("url", f"jdbc:postgresql://{POSTGRES_HOST}:5432/analytics_db") \
+        .option("url", f"jdbc:postgresql://{POSTGRES_HOST}:{port}/analytics_db") \
         .option("dbtable", "processed_market_data") \
         .option("user", "admin") \
         .option("password", "adminpassword") \

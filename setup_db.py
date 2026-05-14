@@ -8,6 +8,7 @@ def setup_database():
         try:
             conn = psycopg2.connect(
                 host="localhost",
+                port=5433,
                 database="analytics_db",
                 user="admin",
                 password="adminpassword"
