@@ -1,11 +1,19 @@
 @echo off
 echo Starting Real-Time Analytics System...
 
-:: Start Docker Containers
-docker-compose up -d
+:: Check for Docker Compose version
+docker compose version >nul 2>&1
+if %ERRORLEVEL% == 0 (
+    set DOCKER_CMD=docker compose
+) else (
+    set DOCKER_CMD=docker-compose
+)
 
-echo Waiting for services to start...
-timeout /t 15
+echo Using %DOCKER_CMD%...
+%DOCKER_CMD% up -d
+
+echo Waiting for services to start (this may take a minute on first run)...
+timeout /t 30 /nobreak
 
 :: Install Python Dependencies
 pip install -r requirements.txt

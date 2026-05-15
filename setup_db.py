@@ -3,7 +3,7 @@ from psycopg2 import sql
 import time
 
 def setup_database():
-    retries = 10
+    retries = 20
     while retries > 0:
         try:
             conn = psycopg2.connect(
