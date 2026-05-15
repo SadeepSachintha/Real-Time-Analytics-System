@@ -49,6 +49,19 @@ graph LR
 
 ---
 
+## 🌐 Network & Ports
+
+The system is configured to avoid common port conflicts (e.g., with XAMPP or local Postgres):
+
+| Service | Internal Port | External Port | URL |
+| :--- | :--- | :--- | :--- |
+| **Grafana** | 3000 | **3000** | [http://localhost:3000](http://localhost:3000) |
+| **Spark Master** | 8080 | **8081** | [http://localhost:8081](http://localhost:8081) |
+| **PostgreSQL** | 5432 | **5433** | `localhost:5433` |
+| **Kafka (External)** | 29092 | **29092** | `localhost:29092` |
+
+---
+
 ## 🚦 Getting Started
 
 ### 1. Initialize Infrastructure
@@ -82,11 +95,17 @@ image: bitnamilegacy/spark:3.5
 ```
 *Note: Bitnami migrated community images to the legacy repository in late 2025.*
 
-### Permission Denied (Linux)
+### Permission Denied (Linux/Windows)
 If scripts fail to run, re-apply execute permissions:
 ```bash
 chmod +x start.sh stop.sh submit_processor.sh
 ```
+*Note: The Spark submission scripts are configured to run as `root` inside the container to avoid Ivy cache permission issues.*
+
+### PostgreSQL Connection Issues
+If the database container fails to start or rejects connections:
+1. Ensure you are using `postgres:16` as defined in `docker-compose.yml`.
+2. If you previously used a different version, you may need to clear the volume: `docker compose down -v`.
 
 ---
 
