@@ -1,7 +1,7 @@
 import json
 import time
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 from confluent_kafka import Producer
 
 # Kafka Configuration
@@ -38,7 +38,7 @@ def generate_price_update():
     current_price = round(veg["base_price"] * (1 + price_change), 2)
     
     data = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
         "item_name": veg["name"],
         "unit": "1kg",
         "price": current_price,

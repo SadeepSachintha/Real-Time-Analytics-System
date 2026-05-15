@@ -34,7 +34,8 @@ graph LR
 - **Real-Time Streaming**: End-to-end latency of seconds.
 - **Robust Processing**: Intelligent 30-second sliding windows.
 - **Cross-Platform**: Optimized for both **Windows** and **Ubuntu**.
-- **Auto-Provisioned**: Grafana comes pre-linked to the PostgreSQL database.
+- **Auto-Provisioned**: Grafana comes pre-linked to the PostgreSQL database with correct UID mapping.
+- **Timezone Sync**: Integrated UTC synchronization between Producer, Spark, and Postgres to ensure accurate real-time dashboards.
 
 ---
 
@@ -106,6 +107,16 @@ chmod +x start.sh stop.sh submit_processor.sh
 If the database container fails to start or rejects connections:
 1. Ensure you are using `postgres:16` as defined in `docker-compose.yml`.
 2. If you previously used a different version, you may need to clear the volume: `docker compose down -v`.
+
+### Grafana Showing "No Data"
+If the dashboard panels show "No Data" despite the producer running:
+1. **Timezone Mismatch**: Ensure your `producer.py` is using UTC timestamps (`datetime.now(timezone.utc)`). If the producer uses local time while Docker containers use UTC, Grafana's time filters will exclude the data.
+2. **Clear Backlog**: If you recently fixed a timezone issue, you may need to clear the old data:
+   ```bash
+   docker exec -it <postgres_container_name> psql -U admin -d analytics_db -c "TRUNCATE processed_market_data;"
+   ```
+3. **Datasource UID**: Verify that the `uid` in `grafana/provisioning/datasources/postgres.yaml` matches the `uid` used in the dashboard JSON.
+
 
 ---
 
